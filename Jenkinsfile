@@ -9,15 +9,14 @@ node {
 
       stage('Pulling the images and config Docker API remote'){
 	        def dockerRun = 'docker run -p 8080:8080 -p 50000:50000 -v /root/jenkins:/var/jenkins_home jenkins/jenkins:2.320'
-	      
+	        sshagent(['AWSUbuntucred']) {    
+		    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.23.43 ${dockerRun}"
+		}
 	        echo 'Pulling the docker images'
 	        cd /root/Build-CICD-pipleine-using-Dockerfile
                 sh 'docker pull jenkins/jenkins:2.320
                 sh 'docker pull jenkins/slave'
-	        sshagent(['AWSUbuntucred']) {    
-		    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.23.43 ${dockerRun}"
-		}
-	      
+	        
 	        echo 'Configuring Docker API remote'
 	        sh 'docker run -p 3375:2375 -v /var/run/docker.sock:/var/run/docker.sock -d shipyard/docker-proxy'
         }
